@@ -31,7 +31,8 @@ def touchups_and_export(df):
     df.drop(remove_list, axis=1, inplace=True)
     
     #METRIC ORDER
-    df_ORHD = df[[]]
+    df_ORHD = df[['Life Expectancy']]
+    #df_ORHD = df[[]]
     df_TAU = df[['% Public Transit', '% Walked', '% Bicycle']]
     df_OARE = df[['Median Household Income', \
               'Poverty Rate', \
@@ -51,7 +52,7 @@ def touchups_and_export(df):
     worksheet=workbook.add_worksheet(sheet_title)
     writer.sheets[sheet_title] = worksheet
     df_ORHD.to_excel(writer,sheet_name=sheet_title,startrow=0 , startcol=0)   
-    df_TAU.to_excel(writer,sheet_name=sheet_title,startrow=len(df_ORHD)+3, startcol=0)
-    df_OARE.to_excel(writer,sheet_name=sheet_title,startrow=len(df_ORHD)+3 + len(df_TAU)+3, startcol=0)
+    df_TAU.to_excel(writer,sheet_name=sheet_title,startrow=len(df_ORHD)+4, startcol=0)
+    df_OARE.to_excel(writer,sheet_name=sheet_title,startrow=len(df_ORHD)+4 + len(df_TAU)+4, startcol=0)
     writer.save()
     print('DONE')

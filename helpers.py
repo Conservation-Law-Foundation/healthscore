@@ -38,6 +38,8 @@ def add_data_one(call,db,obj):
         #put the metric in Place
         setattr(obj, m.name, new_Metric)
 
+#def add_data_csv()
+
 def add_data_all_tracts(db,plcs):
     for i in range(1, len(plcs)):
         ct = db.call_tract
@@ -46,10 +48,19 @@ def add_data_all_tracts(db,plcs):
 def add_data(db,plcs):
     add_data_all_tracts(db,plcs)
     add_data_one(db.call_state, db, plcs[0])
-    
+
+def add_data_csv(plcs,db):
+    for p in plcs:
+        for m in db.metrics:
+        #create new metric to put in Place
+            new_Metric = Metric(m, '')
+            setattr(new_Metric, 'E', db.data.loc[db.data['TRACT2KX'] == float(p.code), 'e(0)'].iloc[0])
+            setattr(new_Metric, 'M', db.data.loc[db.data['TRACT2KX'] == float(p.code), 'se(e(0))'].iloc[0])  
+            #put the metric in Place
+            setattr(p, m, new_Metric)
+
 def compile_data(plcs):
-    
-    all_attr = [a for a in dir(plcs[0]) if not a.startswith('__') and not a.startswith('name') and not a.startswith('code')]
+    all_attr = [a for a in dir(plcs[1]) if not a.startswith('__') and not a.startswith('name') and not a.startswith('code')]
     num_metrics = len(all_attr)
     num_places = len(plcs)
     level1 = []

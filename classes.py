@@ -29,6 +29,7 @@ class Database:
         self.call_end_state = {}
         self.call_tract = []
         self.call_state = {}
+        self.data = []
     def update_metrics(self):
         for k in self.metrics_dict.keys():
             self.metrics.append(Metric(k, self.metrics_dict[k]))

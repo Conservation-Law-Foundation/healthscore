@@ -65,5 +65,6 @@ ACS_D.call_end_state = "&for=state:" + state
 dbs = [ACS_B, ACS_S, ACS_D]
 
 #CDC LIFE EXPECTANCY
-cdc_data = pd.read_csv('MA_A.CSV')
-
+CDC = Database('CDC')
+CDC.data = pd.read_csv('MA_A.CSV')
+CDC.metrics = ['Life Expectancy']

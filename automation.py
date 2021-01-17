@@ -39,48 +39,35 @@ project = 'Holbrook'
 #TRACT & STATE OBJECTS
 State = Place('MA', state)
 places = [State]
+Tracts = []
 for t in tracts:
     T = Place(project, t)
     places.append(T)
+    Tracts.append(T)
 
 #DATA PULLS
 import databases
+
+#ALL ACS
 for db in databases.dbs:
     db.update_metrics()
     create_acs_calls(db, places)
     add_data(db, places)
+
+# #CDC LIFE EXPECTANCY
+#cdc_data = databases.cdc_data
+CDC = databases.CDC
+add_data_csv(Tracts, CDC)
+
+for m in CDC.metrics:
+    new_Metric = Metric(m, '')
+    setattr(new_Metric, 'E', 0)
+    setattr(new_Metric, 'M', 0)
+    setattr(State, m, new_Metric)
+    
 
 #COMPILATION
 df_proj = compile_data(places)
 
 calcs.calculations(df_proj)
 calcs.touchups_and_export(df_proj)
-#print(df_proj)
-
-# # #CALCULATIONS
-# #Population of Color
-# df['Population of Color (%)'] = (df['Total with Race Data']-df['Total White Alone']) / df['Total with Race Data'] * 100
-# #Neighborhood Renters who are Cost-Burdened
-# df['% Neighborhood Renters who are Cost-Burdened'] = (df['Rent 30.0-34.9%'] \
-#                                                       + df['Rent 35.0-39.9%']
-#                                                       + df['Rent 40.0-49.9%']
-#                                                       + df['Rent >50.0%']) / df['Total with Rent Data'] * 100
-# #Educational Attainment
-# df['% with Associates/Bachelors Degree or higher'] = df['% >25 with Associates'] \
-#                                                         + df['% >25 with Bachelors or higher']
-    
-# #REMOVE COLUMNS
-# remove_list = ['Total with Race Data', 'Total White Alone', \
-#                 'Total with Rent Data', 'Rent 30.0-34.9%', 'Rent 35.0-39.9%', 'Rent 35.0-39.9%', 'Rent 40.0-49.9%', 'Rent >50.0%']
-# df.drop(remove_list, axis=1, inplace=True)
-
-# #FINAL TOUCHUPS
-# df = df[['% Public Transit', '% Walked', '% Bicycle', \
-#           'Median Household Income', \
-#           'Poverty Rate', \
-#           'Unemployment Rate', \
-#           '% with Associates/Bachelors Degree or higher', \
-#           'Population of Color (%)', '% Limited English Households', \
-#           '% Neighborhood Renters who are Cost-Burdened']]
-# df = df.T
-# print(df)
