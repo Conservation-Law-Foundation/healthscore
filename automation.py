@@ -9,6 +9,7 @@ import numpy as np
 from helpers import *
 from classes import *
 import calcs
+from sodapy import Socrata
 
 pd.set_option('display.max_columns', None)
 pd.set_option('expand_frame_repr', False)
@@ -42,6 +43,7 @@ places = [State]
 Tracts = []
 for t in tracts:
     T = Place(project, t)
+    setattr(T, 'full_code', state+county+t)
     places.append(T)
     Tracts.append(T)
 
@@ -59,12 +61,34 @@ for db in databases.dbs:
 CDC = databases.CDC
 add_data_csv(Tracts, CDC)
 
-for m in CDC.metrics:
+# for m in CDC.metrics:
+#     new_Metric = Metric(m, '')
+#     setattr(new_Metric, 'E', 0)
+#     setattr(new_Metric, 'M', 0)
+#     setattr(State, m, new_Metric)
+    
+#CDC PLACES
+PLACES = databases.PLACES
+client = databases.client
+PLACES.update_metrics()
+#put TRACTS in instead of PLACES
+
+    
+add_PLACES_data(PLACES, Tracts, client)
+
+for m in PLACES.metrics:
     new_Metric = Metric(m, '')
     setattr(new_Metric, 'E', 0)
     setattr(new_Metric, 'M', 0)
-    setattr(State, m, new_Metric)
-    
+    setattr(State, m.name, new_Metric)
+
+#MA DATA FROM OTHER SOURCES
+MA_data = pd.read_excel('MA_DATA.xlsx', index_col=0)
+for i in MA_data.index:
+    new_Metric = Metric(i, '')
+    setattr(new_Metric, 'E', MA_data.loc[i]['E'])
+    setattr(new_Metric, 'M', MA_data.loc[i]['M'])
+    setattr(State, i, new_Metric)
 
 #COMPILATION
 df_proj = compile_data(places)

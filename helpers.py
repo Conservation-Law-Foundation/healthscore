@@ -59,8 +59,21 @@ def add_data_csv(plcs,db):
             #put the metric in Place
             setattr(p, m, new_Metric)
 
+def add_PLACES_data(db, plcs, client):
+    db.update_metrics()
+    for m in db.metrics:
+        for p in plcs:
+            results = client.get("cwsq-ngmh", year="2018", locationid=p.full_code, measureid=m.code, limit=2000)
+            df = pd.DataFrame.from_records(results)
+            est = float(df['data_value'])
+            me = est - float(df['low_confidence_limit'])
+            new_Metric = Metric(m.name, m.code)
+            setattr(new_Metric, 'E', est)
+            setattr(new_Metric, 'M', me)
+            setattr(p, m.name, new_Metric)
+
 def compile_data(plcs):
-    all_attr = [a for a in dir(plcs[1]) if not a.startswith('__') and not a.startswith('name') and not a.startswith('code')]
+    all_attr = [a for a in dir(plcs[1]) if not a.startswith('__') and not a.startswith('name') and not a.startswith('code') and not a.startswith('full_code')]
     num_metrics = len(all_attr)
     num_places = len(plcs)
     level1 = []
@@ -75,18 +88,10 @@ def compile_data(plcs):
     for i in range(0,len(all_attr)):
         a = all_attr[i]
         data_row = []
-        #data_row = np.zeros(shape=(1, num_places*2))
-        #filled = 0
         for p in plcs:
             m = p.__dict__[a]
-            # data_row[filled] = m.E
-            # print(data_row)
-            # filled += 1
-            # data_row[filled] = m.M
-            # filled += 1
             data_row.append(float(m.E))
             data_row.append(float(m.M))
-        #filled = 0
         data[i] = data_row
 
     data = np.array(data, dtype=object)

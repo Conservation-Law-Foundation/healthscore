@@ -8,6 +8,8 @@ Created on Thu Jan 14 16:19:11 2021
 import requests
 import pandas as pd
 import numpy as np
+from sodapy import Socrata
+
 from helpers import *
 from classes import *
 import automation
@@ -68,3 +70,15 @@ dbs = [ACS_B, ACS_S, ACS_D]
 CDC = Database('CDC')
 CDC.data = pd.read_csv('MA_A.CSV')
 CDC.metrics = ['Life Expectancy']
+
+#CDC PLACES
+PLACES = Database('PLACES')
+PLACES.metrics_dict = {
+    'Cancer (excluding skin cancer) among adults >= 18': 'CANCER',
+    'Current asthma among adults >= 18': 'CASTHMA',
+    'COPD among adults >= 18': 'COPD',
+    'Coronary heart disease among adults >= 18': 'CHD',
+    'Diabetes among adults >= 18': 'DIABETES',
+    'Stroke among adults >= 18': 'STROKE',
+    'Mental health not good for >= 14 days among adults >= 18': 'MHLTH'}
+client = Socrata("chronicdata.cdc.gov", None)

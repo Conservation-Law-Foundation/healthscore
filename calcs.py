@@ -31,7 +31,14 @@ def touchups_and_export(df):
     df.drop(remove_list, axis=1, inplace=True)
     
     #METRIC ORDER
-    df_ORHD = df[['Life Expectancy']]
+    df_ORHD = df[['Life Expectancy', \
+                  'Cancer (excluding skin cancer) among adults >= 18', \
+                  'Current asthma among adults >= 18', \
+                  'COPD among adults >= 18', \
+                  'Coronary heart disease among adults >= 18', \
+                  'Diabetes among adults >= 18', \
+                  'Stroke among adults >= 18', \
+                  'Mental health not good for >= 14 days among adults >= 18']]
     #df_ORHD = df[[]]
     df_TAU = df[['% Public Transit', '% Walked', '% Bicycle']]
     df_OARE = df[['Median Household Income', \
