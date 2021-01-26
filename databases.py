@@ -25,11 +25,13 @@ project = automation.project
 ACS_B = Database('ACS Detailed')  
 ACS_B.metrics_dict = {
     'Median Household Income': 'B19013_001',
+    
     #Population of Color
     'Total with Race Data': 'B02001_001',
     'Total White Alone': 'B02001_002',
-    'Total with Rent Data': 'B25070_001',
+    
     #Cost Burdened Renters
+    'Total with Rent Data': 'B25070_001',
     'Rent 30.0-34.9%': 'B25070_007',
     'Rent 35.0-39.9%': 'B25070_008',
     'Rent 40.0-49.9%': 'B25070_009',
@@ -42,11 +44,30 @@ ACS_B.call_end_state = "&for=state:" + state
 #ACS SUBJECT TABLE
 ACS_S = Database('ACS Subject')
 ACS_S.metrics_dict = {
-    'Poverty Rate': 'S1701_C03_001',
-    '% Limited English Households': 'S1602_C04_001',
+    #Poverty Rate
+    #'Poverty Rate': 'S1701_C03_001',
+    'Total with Poverty Data': 'S1701_C01_001',
+    'Below Poverty Level': 'S1701_C02_001',
+    
     #Education Attainment
-    '% >25 with Associates': 'S1501_C02_011',
-    '% >25 with Bachelors or higher': 'S1501_C02_015',
+    # '% >25 with Associates': 'S1501_C02_011',
+    # '% >25 with Bachelors or higher': 'S1501_C02_015',
+    'Total with Education Data >25': 'S1501_C01_006',
+    '> 25 with Associates' : 'S1501_C01_011',
+    '> 25 with Bachelors or higher' : 'S1501_C01_015',
+    
+    #Limited English Households
+    # '% Limited English Households': 'S1602_C04_001',
+    'Total with Language Data': 'S1602_C01_001',
+    'Limited English-speaking': 'S1602_C03_001',
+    
+    #Low-Income <5
+    'Low-Income <5': 'S1701_C02_003',
+    #Low-Income >65
+    'Low-Income >65': 'S1701_C02_010',
+    
+    #Transit Use
+    'Workers >16': 'S0801_C01_001',
     '% Public Transit': 'S0801_C01_009',
     '% Walked': 'S0801_C01_010',
     '% Bicycle': 'S0801_C01_011'
@@ -58,7 +79,16 @@ ACS_S.call_end_state = "&for=state:" + state
 #ACS DATA PROFILES
 ACS_D = Database('ACS Data Profiles')
 ACS_D.metrics_dict = {
-    'Unemployment Rate': 'DP03_0009P'
+    #Unemployment Rate
+    #'Unemployment Rate': 'DP03_0009P'
+    'In Labor Force': 'DP03_0002',
+    'Total Unemployed': 'DP03_0005',
+    #Car Ownership
+    'Occupied Housing Units': 'DP04_0057',
+    'No vehicles': 'DP04_0058',
+    '1 vehicle': 'DP04_0059',
+    '2 vehicles': 'DP04_0060',
+    '>3 vehicles': 'DP04_0061'
     }
 ACS_D.call_base = "https://api.census.gov/data/2019/acs/acs5/profile?get=NAME,"
 ACS_D.call_end_tract = "&for=tract:" + "XXXXXX" + "&in=state:" + state + "+county:" + county
@@ -66,9 +96,9 @@ ACS_D.call_end_state = "&for=state:" + state
 
 dbs = [ACS_B, ACS_S, ACS_D]
 
-#CDC LIFE EXPECTANCY
+#RWJF LIFE EXPECTANCY
 CDC = Database('CDC')
-CDC.data = pd.read_csv('MA_A.CSV')
+CDC.data = pd.read_csv('US_A.CSV')
 CDC.metrics = ['Life Expectancy']
 
 #CDC PLACES
@@ -82,3 +112,23 @@ PLACES.metrics_dict = {
     'Stroke among adults >= 18': 'STROKE',
     'Mental health not good for >= 14 days among adults >= 18': 'MHLTH'}
 client = Socrata("chronicdata.cdc.gov", None)
+
+#EJ SCREEN
+EJ = Database('EJ')
+EJ.metrics_dict = {
+    'PM 2.5 (ug/m3)': 'PM25',
+    'NATA Diesel PM (ug/m3)': 'DIESEL',
+    'NATA Air Toxics Cancer Risk (risk per MM)': 'CANCER',
+    'NATA Respiratory Hazard Index': 'RESP'
+    }
+EJ.call_base = 'https://ejscreen.epa.gov/mapper/ejscreenRESTbroker.aspx?namestr=' + 'XXXXXXXXXXX' + '&geometry=&distance=&unit=9035&areatype=tract&areaid=' + 'XXXXXXXXXXX' +'&f=pjson'
+
+#LATCH
+LATCH = Database('LATCH')
+LATCH.data = pd.read_csv('latch_2017-b.csv')
+LATCH.metrics = ['Average weekday vehicle miles traveled per household']
+
+
+
+
+

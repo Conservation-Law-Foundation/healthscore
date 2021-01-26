@@ -18,6 +18,10 @@ class Metric:
     def update_codes(self):
         self.code_E = str(self.code) + 'E'
         self.code_M = str(self.code) + 'M'
+    def update_EJ_codes(self):
+        self.code_E = 'RAW_E_' + str(self.code)
+        self.code_S = 'S_E_' + str(self.code)
+        self.code_P = 'S_P_' + str(self.code)
         
 class Database:
     def __init__(self, name):
@@ -35,3 +39,9 @@ class Database:
             self.metrics.append(Metric(k, self.metrics_dict[k]))
         for m in self.metrics:
             m.update_codes()
+    def update_EJ_metrics(self):
+        for k in self.metrics_dict.keys():
+            self.metrics.append(Metric(k, self.metrics_dict[k]))
+        for m in self.metrics:
+            m.update_EJ_codes()
+    

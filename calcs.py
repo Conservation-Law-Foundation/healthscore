@@ -7,6 +7,7 @@ Created on Fri Jan 15 12:16:59 2021
 """
 
 import pandas as pd
+import openpyxl
 
 # #CALCULATIONS FUNCTION
 
@@ -38,7 +39,8 @@ def touchups_and_export(df):
                   'Coronary heart disease among adults >= 18', \
                   'Diabetes among adults >= 18', \
                   'Stroke among adults >= 18', \
-                  'Mental health not good for >= 14 days among adults >= 18']]
+                  'Mental health not good for >= 14 days among adults >= 18', \
+                  'PM 2.5 (ug/m3)']]
     #df_ORHD = df[[]]
     df_TAU = df[['% Public Transit', '% Walked', '% Bicycle']]
     df_OARE = df[['Median Household Income', \
@@ -58,8 +60,24 @@ def touchups_and_export(df):
     workbook=writer.book
     worksheet=workbook.add_worksheet(sheet_title)
     writer.sheets[sheet_title] = worksheet
-    df_ORHD.to_excel(writer,sheet_name=sheet_title,startrow=0 , startcol=0)   
-    df_TAU.to_excel(writer,sheet_name=sheet_title,startrow=len(df_ORHD)+4, startcol=0)
-    df_OARE.to_excel(writer,sheet_name=sheet_title,startrow=len(df_ORHD)+4 + len(df_TAU)+4, startcol=0)
+    df_ORHD.to_excel(writer,sheet_name=sheet_title,startrow=1 , startcol=0)   
+    df_TAU.to_excel(writer,sheet_name=sheet_title,startrow=len(df_ORHD)+4+2, startcol=0)
+    df_OARE.to_excel(writer,sheet_name=sheet_title,startrow=len(df_ORHD)+4 + len(df_TAU)+4+3, startcol=0)
     writer.save()
+    
+    
+    srcfile = openpyxl.load_workbook('test.xlsx',read_only=False, keep_vba= True)
+    sheetname = srcfile.get_sheet_by_name(sheet_title)
+    
+    sheetname.cell(row=1,column=1).value = "Opportunity to Reduce Health Disparities" 
+    sheetname.cell(row=len(df_ORHD)+4+2,column=1).value = "Transportation Access and Utilization" 
+    sheetname.cell(row=len(df_ORHD)+4 + len(df_TAU)+4+3,column=1).value = "Opportunity to Advance Regional Equity" 
+    
+    
+    srcfile.save('test.xlsm')
+    
     print('DONE')
+    
+
+
+
