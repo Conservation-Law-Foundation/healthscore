@@ -166,13 +166,13 @@ def add_schools(state, district, base):
     #MA
     if state == '25':
         #school performance
-        edu = pd.read_excel('accountability-data-2019.xlsx', sheet_name='Table 3 - Schools', usecols='D,L', header=0)
+        edu = pd.read_excel('ma_accountability.xlsx', sheet_name='Table 3 - Schools', usecols='D,L', header=0)
         edu.columns = edu.iloc[0]
         edu = edu[1:]
         base.loc['School Performance - Overall', ('All Tracts', 'PERC')] = edu.loc[edu['District Name'] == district]['2019 Accountability Percentile'].mean(axis=0)
         
         #disadvantaged
-        edu_dis = pd.read_excel('subgroup-percentile-2019.xlsx', None)
+        edu_dis = pd.read_excel('ma_subgroup.xlsx', None)
         percentiles = []
         
         nonhs = edu_dis['NonHS data']
@@ -207,12 +207,12 @@ def add_schools(state, district, base):
 
     #CT
     if state == '09':
-        edu = pd.read_excel('nextgenacct.xls', header=2)
+        edu = pd.read_excel('ct_accountability.xls', header=2)
         base.at['School Performance - Overall', 'All Tracts'] = edu.loc[edu['RptngDistrictName'] == district]['OutcomeRatePct'].mean(axis=0)
     
     #RI
     if state == '44':
-        edu = pd.read_excel('Accountability_201819.xlsx', sheet_name='School Indicator Data')
+        edu = pd.read_excel('ri_accountability.xlsx', sheet_name='School Indicator Data')
         #calculate 67th percentile
         all_districts = edu['District'].unique()
         all_districts = all_districts[1:]

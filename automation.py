@@ -8,7 +8,6 @@ import pandas as pd
 import numpy as np
 from helpers import *
 from classes import *
-import calcs
 from sodapy import Socrata
 import statistics
 

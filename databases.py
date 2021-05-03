@@ -154,7 +154,7 @@ dbs = [ACS_B, ACS_S, ACS_D, ACS_2015]
 
 #RWJF LIFE EXPECTANCY
 CDC = Database('CDC')
-CDC.data = pd.read_csv('data.csv')
+CDC.data = pd.read_csv('rwjf.csv')
 CDC.metrics = ['Life Expectancy']
 
 #CDC PLACES
@@ -181,7 +181,7 @@ EJ.call_base = 'https://ejscreen.epa.gov/mapper/ejscreenRESTbroker.aspx?namestr=
 
 #LATCH
 LATCH = Database('LATCH')
-LATCH.data = pd.read_csv('latch_2017-b.csv')
+LATCH.data = pd.read_csv('latch.csv')
 LATCH.metrics_dict = {'Average weekday vehicle miles traveled per household': 'est_vmiles', \
                       'Household Count': 'hh_cnt',
                       'Urban Group': 'urban_group'}
