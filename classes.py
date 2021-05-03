@@ -15,6 +15,9 @@ class Metric:
     def __init__(self, name, code):
         self.name = name
         self.code = code
+        # self.call = []
+        # self.opp = [] #if scales positively (more = more points). false if more = less points
+        # self.need = []
     def update_codes(self):
         self.code_E = str(self.code) + 'E'
         self.code_M = str(self.code) + 'M'

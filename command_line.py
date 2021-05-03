@@ -38,9 +38,9 @@ from sodapy import Socrata
 
 # response = requests.get('https://ejscreen.epa.gov/mapper/ejscreenRESTbroker.aspx?namestr=25021420302&geometry=&distance=&unit=9035&areatype=tract&areaid=25021420302&f=pjson')
 # data = response.json() #oh this is already a dictionary kek
-# df = pd.DataFrame.from_dict(data)
-# print(df)
-#print(data)
+# # df = pd.DataFrame.from_dict(data)
+# # print(df)
+# print(data)
 
 # df = pd.DataFrame(index=['A','B','C'], columns=['x','y'])
 
@@ -92,8 +92,10 @@ from sodapy import Socrata
 #epa_urban = epa.loc[epa['GEOID10'].astype(str).str[1:] == urban_tracts.astype(str)]
 #plt.hist(epa['D4c'], 100)
 
-iterables = [["bar", "baz", "foo", "qux"], ["one", "two"]]
+# iterables = [["bar", "baz", "foo", "qux"], ["one", "two"]]
 
-index = pd.MultiIndex.from_product(iterables, names=["first", "second"])
-s = pd.DataFrame(np.random.randn(8,8), columns=index)
-print(s)
+# index = pd.MultiIndex.from_product(iterables, names=["first", "second"])
+# s = pd.DataFrame(np.random.randn(8,8), columns=index)
+# print(s)
+
+response = requests.get("https://api.census.gov/data/2019/acs/acs5?get=NAME,B19013_001E&for=tract:337101&in=state:25+county:017")
