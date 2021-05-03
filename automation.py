@@ -17,22 +17,24 @@ import statistics
 # pd.options.display.float_format = '{:.2f}'.format #set number of decimal points
 pd.set_option('mode.chained_assignment',None)
 
-# #SPECIFIC TRACT INPUT
-# # Holbrook: tracts are 421100, 420302, 421200
-# state = str(input("State: "))
-# county = str(input("County: "))
-# primary = str(input('Primary Tract: '))
-# tracts = [primary]
-# stop = False
-# while stop == False:
-#     t = str(input("Tract: "))
-#     if t == 'STOP':
-#         stop = True;
-#     else:
-#         tracts.append(t)
-# block = str(input('Block: '))
-# project = str(input("Project Name: " ))
-# district = str(input("District: " ))
+#SPECIFIC TRACT INPUT
+# Holbrook: tracts are 421100, 420302, 421200
+state = str(input("State: "))
+county = str(input("County: "))
+primary = str(input('Primary Tract: '))
+tracts = [primary]
+stop = False
+while stop == False:
+    t = str(input("Tract: "))
+    if t == 'STOP':
+        stop = True;
+    else:
+        tracts.append(t)
+block = str(input('Block: '))
+district = str(input("District: " ))
+community = str(input('Community: '))
+project = str(input("Project Name: " ))
+
 
 # #HARD CODED TRACT INPUT - HOLBROOK
 # state = str(25)
@@ -56,16 +58,16 @@ pd.set_option('mode.chained_assignment',None)
 # district = 'Hamilton-Wenham'
 # community = "CoO"
 
-# #HARD CODED TRACT INPUT - DOT AVE
-state = str(25)
-county = str(0)+str(25)
-#tract = str(421100)
-primary = '091600'
-tracts = ['091600','091700','092000','092101','092200']
-project = 'Dot Ave full output'
-block = str(1)
-district = 'Boston'
-community = "CoN"
+# # #HARD CODED TRACT INPUT - DOT AVE
+# state = str(25)
+# county = str(0)+str(25)
+# #tract = str(421100)
+# primary = '091600'
+# tracts = ['091600','091700','092000','092101','092200']
+# project = 'Dot Ave full output'
+# block = str(1)
+# district = 'Boston'
+# community = "CoN"
 
 #TRACT & STATE OBJECTS
 State = Place('', state)
@@ -156,7 +158,7 @@ create_EJ_calls(EJ, Tracts)
 add_ej_data_all(EJ, places, base)
 
 # #EPA SMART LOCATION
-epa = pd.read_csv('MA_tracts_d4c.csv')
+epa = pd.read_csv('epa_smartlocation.csv')
 geoid = int(state + county + primary + block)
 base.loc['Transit Frequency', ('All Tracts', 'EST')] =  epa.loc[epa['GEOID10'] == geoid]['D4c'].values[0]
 base.loc['Transit Frequency', 'Source'] = 'EPA'
@@ -369,7 +371,9 @@ for index, row in base['All Tracts'].iterrows():
             base.loc[index, '% Points'] = 5/6
         elif z_score < -2.326:
             base.loc[index, '% Points'] = 1
-    
+  
+base = base.rename({'% Points': '% of Max Points Scored (Decimal Value)'}, axis='columns')
+
 #Urban Group
 primary_group = base.loc['Urban Group', (primary, 'EST')]
 base.loc['Urban Group', ('All Tracts', 'EST')] = primary_group
@@ -455,7 +459,7 @@ elif community == 'CoO':
                   'School Performance - Overall', \
                   'School Performance - Econ. Disadvantaged', \
                   'Average Number of Cars Per Household']  
-#base = base.reindex(row_order)
+base = base.reindex(row_order)
 
 # # #EXCEL SHEET
 sheet_title = 'HealthScore 2.0'
