@@ -49,8 +49,6 @@ def create_acs_calls(db,plcs):
 
 def add_acs_data_one(call,db,obj,base_df):
     data = requests.get(call)
-    #print(call)
-    #print(data)
     df = pd.DataFrame.from_dict(data.json())
     df.columns = df.iloc[0]
     df.drop(df.index[0], inplace=True)
@@ -60,7 +58,6 @@ def add_acs_data_one(call,db,obj,base_df):
         try:
             base_df.loc[m.name, (obj.code, 'EST')] = float(df[m.code_E].iloc[0])
             base_df.loc[m.name, (obj.code, 'MOE')] = float(df[m.code_M].iloc[0])
-            #print(base_df)
             base_df.loc[m.name, 'Source'] = 'ACS'
         except KeyError:
             continue

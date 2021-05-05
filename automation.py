@@ -17,35 +17,35 @@ import statistics
 # pd.options.display.float_format = '{:.2f}'.format #set number of decimal points
 pd.set_option('mode.chained_assignment',None)
 
-#SPECIFIC TRACT INPUT
-# Holbrook: tracts are 421100, 420302, 421200
-state = str(input("State: "))
-county = str(input("County: "))
-primary = str(input('Primary Tract: '))
-tracts = [primary]
-stop = False
-while stop == False:
-    t = str(input("Tract: "))
-    if t == 'STOP':
-        stop = True;
-    else:
-        tracts.append(t)
-block = str(input('Block: '))
-district = str(input("District: " ))
-community = str(input('Community: '))
-project = str(input("Project Name: " ))
+# #SPECIFIC TRACT INPUT
+# # Holbrook: tracts are 421100, 420302, 421200
+# state = str(input("State: "))
+# county = str(input("County: "))
+# primary = str(input('Primary Tract: '))
+# tracts = [primary]
+# stop = False
+# while stop == False:
+#     t = str(input("Tract: "))
+#     if t == 'STOP':
+#         stop = True;
+#     else:
+#         tracts.append(t)
+# block = str(input('Block: '))
+# district = str(input("District: " ))
+# community = str(input('Community: '))
+# project = str(input("Project Name: " ))
 
 
-# #HARD CODED TRACT INPUT - HOLBROOK
-# state = str(25)
-# county = str(0)+str(21)
-# #tract = str(421100)
-# primary = '421100'
-# tracts = ['421100','420302','421200']
-# project = 'Holbrook sanity check3'
-# block = str(4)
-# district = 'Holbrook'
-# CoO = False
+#HARD CODED TRACT INPUT - HOLBROOK
+state = str(25)
+county = str(0)+str(21)
+#tract = str(421100)
+primary = '421100'
+tracts = ['421100','420302','421200']
+project = 'Holbrook sanity check3'
+block = str(4)
+district = 'Holbrook'
+community = 'CoN'
 
 # #HARD CODE HAMILTON
 # state = str(25)
@@ -128,7 +128,13 @@ ind = ['Life Expectancy', \
 an_array = np.empty((len(ind),len(col)*len(col2)))
 an_array[:] = np.NaN
 base = pd.DataFrame((an_array), index=ind, columns=index, dtype='object')
-#base = pd.DataFrame(index=ind, columns=col, dtype='object')
+
+other_cols = ['Source']
+another_array = np.empty((len(ind),len(other_cols)))
+another_array[:] = np.NaN
+
+# base = base.join(pd.DataFrame((another_array), index=ind, columns=other_cols, dtype='object'))
+base['Source'] = another_array
 
 ############
 #DATA PULLS#
@@ -167,13 +173,15 @@ base.loc['Transit Frequency', 'Source'] = 'EPA'
 LATCH = databases.LATCH
 add_latch_data(Tracts, LATCH, base)
 #LATCH state data processing
-urb = base.loc['Urban Group', base.columns[0]]
+#urb = base.loc['Urban Group', base.columns[0]]
 ser = LATCH.data['geocode'].astype(str)
 bools = ser.str.startswith(state)
 inds = bools[bools].index
 state_data = LATCH.data.loc[inds]
 state_data = state_data.astype({'urban_group': 'Int64'})
 #base.at['Average weekday vehicle miles traveled per household', State.code] = state_data.loc[state_data['urban_group'] == urb]['est_vmiles'].mean(axis=0)
+
+print(base)
 
 state_miles = 0
 for t in Tracts:
