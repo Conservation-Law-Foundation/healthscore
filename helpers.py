@@ -270,11 +270,13 @@ def divide_moe(calc, num, den, frac, base, col):
     R = base.loc[frac, (col, 'EST')] / 100
     X_den = base.loc[den, (col, 'EST')]
     MOE_calc = ((MOE_num**2 - (R**2).to_numpy() * MOE_den**2)**(1/2)).to_numpy() / X_den.to_numpy() * 100
-    if isinstance(MOE_calc, (int, float)):
-        base.loc[calc, (col, 'MOE')] = MOE_calc
-    else: 
-        MOE_calc = ((MOE_num**2 + (R**2).to_numpy() * MOE_den**2)**(1/2)).to_numpy() / X_den.to_numpy() * 100
-        base.loc[calc, (col, 'MOE')] = MOE_calc
+    # if isinstance(MOE_calc, (int, float)):
+    #     base.loc[calc, (col, 'MOE')] = MOE_calc
+    # else: 
+    #     MOE_calc = ((MOE_num**2 + (R**2).to_numpy() * MOE_den**2)**(1/2)).to_numpy() / X_den.to_numpy() * 100
+    #     base.loc[calc, (col, 'MOE')] = MOE_calc
+    
+    base.loc[calc, (col, 'MOE')] = MOE_calc
     base.loc[calc, 'Source'] = base.loc[num, 'Source'].to_numpy()
     
 def divide_moe_all_only(calc, num, den, frac, base):    
@@ -283,11 +285,12 @@ def divide_moe_all_only(calc, num, den, frac, base):
     R = base.loc[frac, ('All Tracts', 'EST')] / 100
     X_den = base.loc[den, ('All Tracts', 'EST')]
     MOE_calc = ((MOE_num**2 - (R**2) * MOE_den**2)**(1/2)) / X_den * 100
-    if isinstance(MOE_calc, (int, float)):
-        base.loc[calc, ('All Tracts', 'MOE')] = MOE_calc
-    else: 
-        MOE_calc = ((MOE_num**2 + (R**2) * MOE_den**2)**(1/2)) / X_den * 100
-        base.loc[calc, ('All Tracts', 'MOE')] = MOE_calc
+    # if isinstance(MOE_calc, (int, float)):
+    #     base.loc[calc, ('All Tracts', 'MOE')] = MOE_calc
+    # else: 
+    #     MOE_calc = ((MOE_num**2 + (R**2) * MOE_den**2)**(1/2)) / X_den * 100
+    #     base.loc[calc, ('All Tracts', 'MOE')] = MOE_calc
+    base.loc[calc, ('All Tracts', 'MOE')] = MOE_calc
     base.loc[calc, 'Source'] = base.loc[num, 'Source'].to_numpy()
 
 def agg_moe(tracts, base):

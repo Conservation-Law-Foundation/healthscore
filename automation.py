@@ -36,16 +36,16 @@ pd.set_option('mode.chained_assignment',None)
 # project = str(input("Project Name: " ))
 
 
-#HARD CODED TRACT INPUT - HOLBROOK
-state = str(25)
-county = str(0)+str(21)
-#tract = str(421100)
-primary = '421100'
-tracts = ['421100','420302','421200']
-project = 'Holbrook sanity check3'
-block = str(4)
-district = 'Holbrook'
-community = 'CoN'
+# #HARD CODED TRACT INPUT - HOLBROOK
+# state = str(25)
+# county = str(0)+str(21)
+# #tract = str(421100)
+# primary = '421100'
+# tracts = ['421100','420302','421200']
+# project = 'Holbrook sanity check3'
+# block = str(4)
+# district = 'Holbrook'
+# community = 'CoN'
 
 # #HARD CODE HAMILTON
 # state = str(25)
@@ -68,6 +68,18 @@ community = 'CoN'
 # block = str(1)
 # district = 'Boston'
 # community = "CoN"
+
+# #HARD CODED TRACT INPUT - HRCF
+state = str(44)
+county = str(0)+str(0)+str(7)
+#tract = str(421100)
+primary = '000700'
+tracts = ['000700']
+project = 'HRCF - CoN'
+block = str(3)
+district = 'Boston'
+community = "CoN"
+
 
 #TRACT & STATE OBJECTS
 State = Place('', state)
@@ -129,12 +141,12 @@ an_array = np.empty((len(ind),len(col)*len(col2)))
 an_array[:] = np.NaN
 base = pd.DataFrame((an_array), index=ind, columns=index, dtype='object')
 
-other_cols = ['Source']
-another_array = np.empty((len(ind),len(other_cols)))
-another_array[:] = np.NaN
+# other_cols = ['Source']
+# another_array = np.empty((len(ind),len(other_cols)))
+# another_array[:] = np.NaN
 
-# base = base.join(pd.DataFrame((another_array), index=ind, columns=other_cols, dtype='object'))
-base['Source'] = another_array
+# # base = base.join(pd.DataFrame((another_array), index=ind, columns=other_cols, dtype='object'))
+# base['Source'] = another_array
 
 ############
 #DATA PULLS#
@@ -163,11 +175,12 @@ EJ.update_EJ_metrics()
 create_EJ_calls(EJ, Tracts)
 add_ej_data_all(EJ, places, base)
 
-# #EPA SMART LOCATION
-epa = pd.read_csv('epa_smartlocation.csv')
-geoid = int(state + county + primary + block)
-base.loc['Transit Frequency', ('All Tracts', 'EST')] =  epa.loc[epa['GEOID10'] == geoid]['D4c'].values[0]
-base.loc['Transit Frequency', 'Source'] = 'EPA'
+# # #EPA SMART LOCATION
+# epa = pd.read_csv('epa_smartlocation.csv')
+# geoid = int(state + county + primary + block)
+# print(geoid)
+# base.loc['Transit Frequency', ('All Tracts', 'EST')] =  epa.loc[epa['GEOID10'] == geoid]['D4c'].values[0]
+# base.loc['Transit Frequency', 'Source'] = 'EPA'
 
 #LATCH
 LATCH = databases.LATCH
@@ -181,7 +194,6 @@ state_data = LATCH.data.loc[inds]
 state_data = state_data.astype({'urban_group': 'Int64'})
 #base.at['Average weekday vehicle miles traveled per household', State.code] = state_data.loc[state_data['urban_group'] == urb]['est_vmiles'].mean(axis=0)
 
-print(base)
 
 state_miles = 0
 for t in Tracts:
@@ -196,7 +208,7 @@ for i in MA_data.index:
     base.loc[i, (State.code, 'MOE')] = MA_data.loc[i]['M']
 
 #SCHOOL DATA
-add_schools(state, district, base)
+#add_schools(state, district, base)
 
  
 ##############
@@ -355,6 +367,7 @@ for index, row in base['All Tracts'].iterrows():
         pass
     else:
         base.loc[index, 'Z Score'] =  (X1 - X2) / (SE1**2 + SE2**2)**(1/2)
+    #base.loc[index, 'Z Score'] =  (X1 - X2) / (SE1**2 + SE2**2)**(1/2)
     z_score = base.loc[index, 'Z Score'].values
     
     if abs(z_score) < 1.282:
@@ -469,13 +482,17 @@ elif community == 'CoO':
                   'Average Number of Cars Per Household']  
 base = base.reindex(row_order)
 
-# # #EXCEL SHEET
-sheet_title = 'HealthScore 2.0'
-writer = pd.ExcelWriter(project + '.xlsx', engine='xlsxwriter')   
-workbook=writer.book
-worksheet=workbook.add_worksheet(sheet_title)
-writer.sheets[sheet_title] = worksheet
-base.to_excel(writer,sheet_name=sheet_title,startrow=0 , startcol=0)   
-writer.save()
+#print(base)
+
+# #EXCEL SHEET
+# sheet_title = 'HealthScore 2.0'
+# writer = pd.ExcelWriter(project + '.xlsx', engine='xlsxwriter')   
+# workbook=writer.book
+# worksheet=workbook.add_worksheet(sheet_title)
+# writer.sheets[sheet_title] = worksheet
+# base.to_excel(writer,sheet_name=sheet_title,startrow=0 , startcol=0)   
+# writer.save()
+#name = project + '.xlsx'
+base.to_excel('output.xlsx')
 
 print('DONE')

@@ -47,10 +47,16 @@ from sodapy import Socrata
 # df.at['C', 'x'] = 10
 # print(df)
 
-# df = pd.read_excel('accountability-data-2019.xlsx', sheet_name='Table 3 - Schools', usecols='D,L', header=0)
+# df = pd.read_excel('ma_accountability.xlsx', sheet_name='Table 3 - Schools', usecols='D,L', header=0)
 # df.columns = df.iloc[0]
 # df = df[1:]
 # print(df)
+
+
+base = pd.DataFrame([['a', 'b'], ['c,', 'd']], index=['row 1', 'row2'], columns=['col 1', 'col2'])
+base.to_excel('output.xlsx')
+print(base)
+#base.to_excel('output.xlsx')
 
 # df = pd.read_excel('nextgenacct.xls', header=2)
 # # df.columns = df.iloc[1]
@@ -98,4 +104,4 @@ from sodapy import Socrata
 # s = pd.DataFrame(np.random.randn(8,8), columns=index)
 # print(s)
 
-response = requests.get("https://api.census.gov/data/2019/acs/acs5?get=NAME,B19013_001E&for=tract:337101&in=state:25+county:017")
+#response = requests.get("https://api.census.gov/data/2019/acs/acs5?get=NAME,B19013_001E&for=tract:337101&in=state:25+county:017")

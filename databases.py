@@ -15,6 +15,7 @@ from helpers import *
 from classes import *
 import automation
 
+year = str(2019)
 
 state = automation.state
 county = automation.county
@@ -65,7 +66,7 @@ ACS_B.metrics_dict = {
 #ACS_B.metrics_dict = {}
 # for m in ACS_B.metrics:
 #     ACS_B.metrics_dict[m.name] = m.call
-ACS_B.call_base = "https://api.census.gov/data/2019/acs/acs5?get=NAME,"
+ACS_B.call_base = "https://api.census.gov/data/" + year + "/acs/acs5?get=NAME,"
 ACS_B.call_end_tract = "&for=tract:" + "XXXXXX" + "&in=state:" + state + "+county:" + county + "&key=" + KEY
 ACS_B.call_end_state = "&for=state:" + state + "&key=" + KEY
 
@@ -119,7 +120,7 @@ ACS_S.metrics_dict = {
     '% Walked': 'S0801_C01_010',
     '% Bicycle': 'S0801_C01_011'
     }
-ACS_S.call_base = "https://api.census.gov/data/2019/acs/acs5/subject?get=NAME,"
+ACS_S.call_base = "https://api.census.gov/data/" + year + "/acs/acs5/subject?get=NAME,"
 ACS_S.call_end_tract = "&for=tract:" + "XXXXXX" + "&in=state:" + state + "+county:" + county + "&key=" + KEY
 ACS_S.call_end_state = "&for=state:" + state + "&key=" + KEY
 
@@ -137,20 +138,20 @@ ACS_D.metrics_dict = {
     '2 vehicles': 'DP04_0060',
     '>3 vehicles': 'DP04_0061'
     }
-ACS_D.call_base = "https://api.census.gov/data/2019/acs/acs5/profile?get=NAME,"
+ACS_D.call_base = "https://api.census.gov/data/" + year + "/acs/acs5/profile?get=NAME,"
 ACS_D.call_end_tract = "&for=tract:" + "XXXXXX" + "&in=state:" + state + "+county:" + county + "&key=" + KEY
 ACS_D.call_end_state = "&for=state:" + state + "&key=" + KEY
 
-#ACS 2015 DETAILED TABLE
-ACS_2015 = Database('ACS Detailed 2015')  
-ACS_2015.metrics_dict = {
-    'Total Population': 'B01003_001'
-    }
-ACS_2015.call_base = "https://api.census.gov/data/2015/acs/acs5?get=NAME,"
-ACS_2015.call_end_tract = "&for=tract:" + "XXXXXX" + "&in=state:" + state + "+county:" + county + "&key=" + KEY
-ACS_2015.call_end_state = "&for=state:" + state + "&key=" + KEY
+# #ACS 2015 DETAILED TABLE
+# ACS_2015 = Database('ACS Detailed 2015')  
+# ACS_2015.metrics_dict = {
+#     'Total Population': 'B01003_001'
+#     }
+# ACS_2015.call_base = "https://api.census.gov/data/2015/acs/acs5?get=NAME,"
+# ACS_2015.call_end_tract = "&for=tract:" + "XXXXXX" + "&in=state:" + state + "+county:" + county + "&key=" + KEY
+# ACS_2015.call_end_state = "&for=state:" + state + "&key=" + KEY
 
-dbs = [ACS_B, ACS_S, ACS_D, ACS_2015]
+dbs = [ACS_B, ACS_S, ACS_D]
 
 #RWJF LIFE EXPECTANCY
 CDC = Database('CDC')
