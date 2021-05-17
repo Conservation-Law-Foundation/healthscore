@@ -17,23 +17,23 @@ import statistics
 # pd.options.display.float_format = '{:.2f}'.format #set number of decimal points
 pd.set_option('mode.chained_assignment',None)
 
-# #SPECIFIC TRACT INPUT
-# # Holbrook: tracts are 421100, 420302, 421200
-# state = str(input("State: "))
-# county = str(input("County: "))
-# primary = str(input('Primary Tract: '))
-# tracts = [primary]
-# stop = False
-# while stop == False:
-#     t = str(input("Tract: "))
-#     if t == 'STOP':
-#         stop = True;
-#     else:
-#         tracts.append(t)
-# block = str(input('Block: '))
-# district = str(input("District: " ))
-# community = str(input('Community: '))
-# project = str(input("Project Name: " ))
+#SPECIFIC TRACT INPUT
+# Holbrook: tracts are 421100, 420302, 421200
+state = str(input("State: "))
+county = str(input("County: "))
+primary = str(input('Primary Tract: '))
+tracts = [primary]
+stop = False
+while stop == False:
+    t = str(input("Tract: "))
+    if t == 'STOP':
+        stop = True;
+    else:
+        tracts.append(t)
+block = str(input('Block: '))
+district = str(input("District: " ))
+community = str(input('Community: '))
+project = str(input("Project Name: " ))
 
 
 # #HARD CODED TRACT INPUT - HOLBROOK
@@ -69,16 +69,27 @@ pd.set_option('mode.chained_assignment',None)
 # district = 'Boston'
 # community = "CoN"
 
-# #HARD CODED TRACT INPUT - HRCF
-state = str(44)
-county = str(0)+str(0)+str(7)
-#tract = str(421100)
-primary = '000700'
-tracts = ['000700']
-project = 'HRCF - CoN'
-block = str(3)
-district = 'Boston'
-community = "CoN"
+# # #HARD CODED TRACT INPUT - HRCF
+# state = str(44)
+# county = str(0)+str(0)+str(7)
+# #tract = str(421100)
+# primary = '000700'
+# tracts = ['000700']
+# project = 'HRCF - CoN'
+# block = str(3)
+# district = 'Barrington'
+# community = "CoO"
+
+# # #HARD CODED TRACT INPUT - HRCF
+# state = str(0) + str(9)
+# county = str(0)+str(0)+str(9)
+# #tract = str(421100)
+# primary = '361401'
+# tracts = ['361401']
+# block = str(3)
+# project = 'CT trial'
+# district = 'New Haven School District'
+# community = "CoO"
 
 
 #TRACT & STATE OBJECTS
@@ -201,14 +212,23 @@ for t in Tracts:
     state_miles  += state_data.loc[state_data['urban_group'] == urb]['est_vmiles'].mean(axis=0)
 base.at['Average weekday vehicle miles traveled per household', (State.code, 'EST')] = state_miles / len(tracts)
 
-# #MA DATA FROM OTHER SOURCES
-MA_data = pd.read_excel('MA_DATA.xlsx', index_col=0)
-for i in MA_data.index:
-    base.loc[i, (State.code, 'EST')] = MA_data.loc[i]['E']
-    base.loc[i, (State.code, 'MOE')] = MA_data.loc[i]['M']
+# STATE DATA FROM OTHER SOURCES
+#MA
+if state == '25':
+  state_data = pd.read_excel('ma_state.xlsx', index_col=0)
+#CT
+if state == '09':
+   state_data = pd.read_excel('ct_state.xlsx', index_col=0)
+#RI
+if state == '44':
+    state_data = pd.read_excel('ri_state.xlsx', index_col=0)
+
+for i in state_data.index:
+    base.loc[i, (State.code, 'EST')] = state_data.loc[i]['E']
+    base.loc[i, (State.code, 'MOE')] = state_data.loc[i]['M']
 
 #SCHOOL DATA
-#add_schools(state, district, base)
+add_schools(state, district, base)
 
  
 ##############

@@ -53,17 +53,17 @@ from sodapy import Socrata
 # print(df)
 
 
-base = pd.DataFrame([['a', 'b'], ['c,', 'd']], index=['row 1', 'row2'], columns=['col 1', 'col2'])
-base.to_excel('output.xlsx')
-print(base)
+# base = pd.DataFrame([['a', 'b'], ['c,', 'd']], index=['row 1', 'row2'], columns=['col 1', 'col2'])
+# base.to_excel('output.xlsx')
+# print(base)
 #base.to_excel('output.xlsx')
 
 # df = pd.read_excel('nextgenacct.xls', header=2)
 # # df.columns = df.iloc[1]
 # # df = df[2:]
 # print(df)
-
-# edu = pd.read_excel('Accountability_201819.xlsx', sheet_name='School Indicator Data')
+# district = 'Barrington'
+# edu = pd.read_excel('ri_accountability.xlsx', sheet_name='School Indicator Data')
 # #calculate 67th percentile
 # all_districts = edu['District'].unique()
 # all_districts = all_districts[1:]
@@ -74,8 +74,16 @@ print(base)
 #     all_scores.append(score)
 
 # cutoff = np.nanpercentile(all_scores, 67)
-# base.at['School Performance - Overall', 'All Tracts'] = edu.loc[edu['District'] == district & edu['Group'] == 'All Students']['2019 Star Rating']
+# #base.at['School Performance - Overall', 'All Tracts'] = edu.loc[edu['District'] == district & edu['Group'] == 'All Students']['2019 Star Rating']
+
+# score = edu.loc[(edu['District'] == district) & (edu['Group'] == 'All Students')]
+# #['2019 Star Rating']
+# print(score)
     
+
+ 
+edu_hn = pd.read_excel('ct_accountability.xlsx')
+print(edu_hn)
 # import os
 # print(os.getcwd())
 

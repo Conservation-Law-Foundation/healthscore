@@ -204,9 +204,30 @@ def add_schools(state, district, base):
 
     #CT
     if state == '09':
-        edu = pd.read_excel('ct_accountability.xls', header=2)
+        edu = pd.read_excel('ct_accountability.xlsx', header=2)
         base.at['School Performance - Overall', 'All Tracts'] = edu.loc[edu['RptngDistrictName'] == district]['OutcomeRatePct'].mean(axis=0)
-    
+        
+        #high needs
+        edu_hn = pd.read_excel('ct_subgroup.xlsx', header=0)
+        all_districts = edu['District Name'].unique()
+        all_scores = []
+        for d in all_districts:
+            ela = edu_hn.loc[edu['District Name'] == d]['ELAPerformanceIndex'].mean(axis=0)
+            math = edu_hn.loc[edu['District Name'] == d]['MathPerformanceIndex'].mean(axis=0)
+            science = edu_hn.loc[edu['District Name'] == d]['SciencePerformanceIndex'].mean(axis=0)
+            hn_score = np.nanmean([ela, math, science])
+            all_scores.append(hn_score)
+        df_score = pd.DataFrame(all_scores, columns = ['District Scores'])
+        df_score['Ranked Scores'] = df_score['District Scores'].rank(pct=True)
+         
+         #specific district nums
+        district_ela = edu_hn.loc[edu['District Name'] == district]['ELAPerformanceIndex'].mean(axis=0)
+        district_math = edu_hn.loc[edu['District Name'] == district]['MathPerformanceIndex'].mean(axis=0)
+        district_science = edu_hn.loc[edu['District Name'] == district]['SciencePerformanceIndex'].mean(axis=0)
+        district_score = np.nanmean([district_ela, district_math, district_science])
+        base.at['School Performance - Econ. Disadvantaged', ('All Tracts', 'PERC')] = (df_score.loc[df_score['District Scores'] == district_score]['Ranked Scores'].to_numpy() * 100).item()
+        
+        
     #RI
     if state == '44':
         edu = pd.read_excel('ri_accountability.xlsx', sheet_name='School Indicator Data')
@@ -214,11 +235,25 @@ def add_schools(state, district, base):
         all_districts = edu['District'].unique()
         all_districts = all_districts[1:]
         all_scores = []
+        all_ED_scores = []
         for d in all_districts:
             score = edu.loc[(edu['District'] == d) & (edu['Group'] == 'All Students')]['2019 Star Rating'].mean(axis=0)
+            ED_score = edu.loc[(edu['District'] == d) & (edu['Group'] == 'Economically Disadvantaged')]['2019 Star Rating'].mean(axis=0)
             all_scores.append(score)
-        cutoff = np.nanpercentile(all_scores, 67)    
-        base.at['School Performance - Overall', 'All Tracts'] = edu.loc[edu['District'] == district & edu['Group'] == 'All Students']['2019 Star Rating'].mean(axis=0)
+            all_ED_scores.append(ED_score)
+        df_score = pd.DataFrame(all_scores, columns = ['District Scores'])
+        df_ED_score = pd.DataFrame(all_ED_scores, columns = ['District ED Scores'])
+        df_score['Ranked Scores'] = df_score['District Scores'].rank(pct=True)
+        df_ED_score['Ranked Scores'] = df_ED_score['District ED Scores'].rank(pct=True)
+        
+        #specific district nums
+        district_score = edu.loc[(edu['District'] == district) & (edu['Group'] == 'All Students')]['2019 Star Rating'].mean(axis=0)
+        district_ED_score = edu.loc[(edu['District'] == district) & (edu['Group'] == 'Economically Disadvantaged')]['2019 Star Rating'].mean(axis=0)
+        #cutoff = np.nanpercentile(all_scores, 67)    
+        
+        base.at['School Performance - Overall', ('All Tracts', 'PERC')] = (df_score.loc[df_score['District Scores'] == district_score]['Ranked Scores'].to_numpy() * 100).item()
+        base.at['School Performance - Econ. Disadvantaged', ('All Tracts', 'PERC')] = (df_ED_score.loc[df_ED_score['District ED Scores'] == district_ED_score]['Ranked Scores'].to_numpy() * 100).item()
+        
 
 ##############
 #CALCULATIONS#
