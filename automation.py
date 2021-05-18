@@ -196,7 +196,7 @@ if state == '09':
 #RI
 if state == '44':
     epa = pd.read_csv('RI_d4c.csv')
-epa = pd.read_csv('epa_smartlocation.csv')
+#epa = pd.read_csv('epa_smartlocation.csv')
 geoid = int(state + county + primary + block)
 base.loc['Transit Frequency', ('All Tracts', 'EST')] =  epa.loc[epa['GEOID10'] == geoid]['D4c'].values[0]
 base.loc['Transit Frequency', 'Source'] = 'EPA'
