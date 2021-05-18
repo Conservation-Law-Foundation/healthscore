@@ -24,22 +24,6 @@ project = automation.project
 
 KEY = 'f9f363d3f234e17efe942546146445b2a9395a1d'
 
-# #METRICS
-# MED_HH_INC = Metric('MED_HH_INC', 'Median Household Income', 'B19013_001', True, False)
-# RACE_TOT = Metric('RACE_TOT', 'Total with Race Data', 'B02001_001', [], [])
-# WHITE_TOT = Metric('WHITE_TOT', 'Total White Alone', 'B02001_002', [], [])
-
-# #Cost-Burdened Renters
-# RENT_TOT = Metric('RENT_TOT', 'Total with Rent Data', 'B25070_001', [], [])
-# RENT_30_34 = Metric('RENT_30_34', 'Rent 30.0-34.9%', 'B25070_007', [], [])
-# RENT_35_39 = Metric('RENT_35_39', 'Rent 35.0-39.9%', 'B25070_008', [], [])
-# RENT_40_49 = Metric('RENT_40_49', 'Rent 40.0-49.9%', 'B25070_009', [], [])
-# RENT_50U = Metric('RENT_50U', 'Rent >50.0%', 'B25070_010', [], [])
-# POP_TOT = Metric('POP_TOT', 'Total Population', 'B01003_001', [], [])
-
-
-#CANCER = Metric('Cancer (excluding skin cancer) among adults >= 18', 'CANCER')
-
 
 #DATABASES - ONLY EDIT IF CHANGING METRICS
 
@@ -141,15 +125,6 @@ ACS_D.metrics_dict = {
 ACS_D.call_base = "https://api.census.gov/data/" + year + "/acs/acs5/profile?get=NAME,"
 ACS_D.call_end_tract = "&for=tract:" + "XXXXXX" + "&in=state:" + state + "+county:" + county + "&key=" + KEY
 ACS_D.call_end_state = "&for=state:" + state + "&key=" + KEY
-
-# #ACS 2015 DETAILED TABLE
-# ACS_2015 = Database('ACS Detailed 2015')  
-# ACS_2015.metrics_dict = {
-#     'Total Population': 'B01003_001'
-#     }
-# ACS_2015.call_base = "https://api.census.gov/data/2015/acs/acs5?get=NAME,"
-# ACS_2015.call_end_tract = "&for=tract:" + "XXXXXX" + "&in=state:" + state + "+county:" + county + "&key=" + KEY
-# ACS_2015.call_end_state = "&for=state:" + state + "&key=" + KEY
 
 dbs = [ACS_B, ACS_S, ACS_D]
 

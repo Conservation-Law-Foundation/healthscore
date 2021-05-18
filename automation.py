@@ -35,63 +35,6 @@ district = str(input("District: " ))
 community = str(input('Community: '))
 project = str(input("Project Name: " ))
 
-
-# #HARD CODED TRACT INPUT - HOLBROOK
-# state = str(25)
-# county = str(0)+str(21)
-# #tract = str(421100)
-# primary = '421100'
-# tracts = ['421100','420302','421200']
-# project = 'Holbrook sanity check3'
-# block = str(4)
-# district = 'Holbrook'
-# community = 'CoN'
-
-# #HARD CODE HAMILTON
-# state = str(25)
-# county = str(0)+ str(0) + str(9)
-# #tract = str(421100)
-# primary = '215102'
-# tracts = ['215102', '215101', '216100']
-# block = str(4)
-# project = 'Hamilton automatic z score reading'
-# district = 'Hamilton-Wenham'
-# community = "CoO"
-
-# # #HARD CODED TRACT INPUT - DOT AVE
-# state = str(25)
-# county = str(0)+str(25)
-# #tract = str(421100)
-# primary = '091600'
-# tracts = ['091600','091700','092000','092101','092200']
-# project = 'Dot Ave full output'
-# block = str(1)
-# district = 'Boston'
-# community = "CoN"
-
-# # #HARD CODED TRACT INPUT - HRCF
-# state = str(44)
-# county = str(0)+str(0)+str(7)
-# #tract = str(421100)
-# primary = '000700'
-# tracts = ['000700']
-# project = 'HRCF - CoN'
-# block = str(3)
-# district = 'Barrington'
-# community = "CoO"
-
-# # #HARD CODED TRACT INPUT - HRCF
-# state = str(0) + str(9)
-# county = str(0)+str(0)+str(9)
-# #tract = str(421100)
-# primary = '361401'
-# tracts = ['361401']
-# block = str(3)
-# project = 'CT trial'
-# district = 'New Haven School District'
-# community = "CoO"
-
-
 #TRACT & STATE OBJECTS
 State = Place('', state)
 places = [State]
@@ -152,13 +95,6 @@ an_array = np.empty((len(ind),len(col)*len(col2)))
 an_array[:] = np.NaN
 base = pd.DataFrame((an_array), index=ind, columns=index, dtype='object')
 
-# other_cols = ['Source']
-# another_array = np.empty((len(ind),len(other_cols)))
-# another_array[:] = np.NaN
-
-# # base = base.join(pd.DataFrame((another_array), index=ind, columns=other_cols, dtype='object'))
-# base['Source'] = another_array
-
 ############
 #DATA PULLS#
 ############
@@ -205,13 +141,16 @@ base.loc['Transit Frequency', 'Source'] = 'EPA'
 LATCH = databases.LATCH
 add_latch_data(Tracts, LATCH, base)
 #LATCH state data processing
-#urb = base.loc['Urban Group', base.columns[0]]
+
 ser = LATCH.data['geocode'].astype(str)
+
+if state == '09':
+    state = '9'
 bools = ser.str.startswith(state)
 inds = bools[bools].index
 state_data = LATCH.data.loc[inds]
 state_data = state_data.astype({'urban_group': 'Int64'})
-#base.at['Average weekday vehicle miles traveled per household', State.code] = state_data.loc[state_data['urban_group'] == urb]['est_vmiles'].mean(axis=0)
+
 
 
 state_miles = 0
@@ -219,6 +158,10 @@ for t in Tracts:
     urb = base.loc['Urban Group', (t.code, 'EST')]
     state_miles  += state_data.loc[state_data['urban_group'] == urb]['est_vmiles'].mean(axis=0)
 base.at['Average weekday vehicle miles traveled per household', (State.code, 'EST')] = state_miles / len(tracts)
+#print(state_miles / len(tracts))
+
+if state == '9':
+    state = '09'
 
 # STATE DATA FROM OTHER SOURCES
 #MA
@@ -267,9 +210,6 @@ base.loc['PLACES population', (['All Tracts', State.code], 'MOE')] = 0
 base.loc['PLACES population', (State.code, 'EST')] = 88929
 for m in PLACES.metrics_dict.keys():
     rollup_percent_calc(m, 'PLACES population', base, tracts, state, col)
-    #base.loc[m, ('All Tracts', 'SE')] = base['All Tracts'].loc[m, 'MOE'] / 1.96
-    #base.loc[m, (State.code, 'SE')] = base[State.code].loc[m, 'MOE'] / 1.96
-    # divide_moe(m, 'Total ' + m, 'PLACES population', m, base, ['All Tracts'])
 
 # # #EJ Screen calculations
 for m in EJ.metrics_dict.keys():
@@ -366,13 +306,7 @@ base.loc['Average Number of Cars Per Household', assign] = (base.loc['No vehicle
    + base.loc['1 vehicle', assign] * 1 \
    + base.loc['2 vehicles', assign] * 2 \
    + base.loc['>3 vehicles', assign] * 3) / (base.loc['Occupied Housing Units', assign])
- 
 
-
-# # #MARGIN OF ERROR TO STANDARD ERROR
-# for index, row in base['All Tracts'].iterrows():
-#     if pd.isna(row['SE']) and not pd.isna(row['MOE']):
-#          base.loc[index, ('All Tracts', 'SE')] = base['All Tracts']['MOE'][index]
 
 #Z SCORES
 logic = pd.read_excel('logic.xlsx', index_col=0)
@@ -394,7 +328,7 @@ for index, row in base['All Tracts'].iterrows():
     if (SE1**2 + SE2**2)**(1/2) == 0:
         pass
     else:
-        base.loc[index, 'Z Score'] =  (X1 - X2) / (SE1**2 + SE2**2)**(1/2)
+        base.loc[index, 'Z Score'] =  np.real((X1 - X2) / (SE1**2 + SE2**2)**(1/2))
     #base.loc[index, 'Z Score'] =  (X1 - X2) / (SE1**2 + SE2**2)**(1/2)
     z_score = base.loc[index, 'Z Score'].values
     
@@ -442,12 +376,6 @@ base.at['Median Household Income', 'Ratio'] = base.at['Median Household Income',
 # # # ###########
 # # # #TOUCH-UPS#
 # # # ###########
-
-# # # # #remove rows
-# # # # remove_list = ['Total with Race Data', 'Total White Alone', \
-# # # #                 'Total with Rent Data', 'Rent 30.0-34.9%', 'Rent 35.0-39.9%', 'Rent 35.0-39.9%', 'Rent 40.0-49.9%', 'Rent >50.0%']
-# # # # base.drop(remove_list, axis=0, inplace=True)
-
 
 # #reorder rows
 if community == 'CoN':
@@ -508,19 +436,11 @@ elif community == 'CoO':
                   'School Performance - Overall', \
                   'School Performance - Econ. Disadvantaged', \
                   'Average Number of Cars Per Household']  
+
+base.to_excel('raw_output.xlsx')
 base = base.reindex(row_order)
 
-#print(base)
 
-# #EXCEL SHEET
-# sheet_title = 'HealthScore 2.0'
-# writer = pd.ExcelWriter(project + '.xlsx', engine='xlsxwriter')   
-# workbook=writer.book
-# worksheet=workbook.add_worksheet(sheet_title)
-# writer.sheets[sheet_title] = worksheet
-# base.to_excel(writer,sheet_name=sheet_title,startrow=0 , startcol=0)   
-# writer.save()
-#name = project + '.xlsx'
 base.to_excel('output.xlsx')
 
 print('DONE')

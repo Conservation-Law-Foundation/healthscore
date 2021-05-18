@@ -128,11 +128,6 @@ def add_latch_data(plcs,db,base_df):
             base_df.loc[m, 'Source'] = 'LATCH'
 
 
-# def add_all_EJ_data(db,plcs):
-#     for i in range(1, len(plcs)):
-#         ct = db.call_tract
-#         add_EJ_data_one(ct[i-1], db, plcs[i])
-
 def compile_data(plcs):
     all_attr = [a for a in dir(plcs[1]) if not a.startswith('__') and not a.startswith('name') and not a.startswith('code') and not a.startswith('full_code')]
     num_metrics = len(all_attr)
@@ -204,27 +199,49 @@ def add_schools(state, district, base):
 
     #CT
     if state == '09':
-        edu = pd.read_excel('ct_accountability.xlsx', header=2)
-        base.at['School Performance - Overall', 'All Tracts'] = edu.loc[edu['RptngDistrictName'] == district]['OutcomeRatePct'].mean(axis=0)
+        edu = pd.read_excel('ct_accountability.xlsx', header=0)
+        base.at['School Performance - Overall', ('All Tracts', 'PERC')] = edu.loc[edu['RptngDistrictName'] == district]['OutcomeRatePct'].mean(axis=0)
         
         #high needs
         edu_hn = pd.read_excel('ct_subgroup.xlsx', header=0)
-        all_districts = edu['District Name'].unique()
+        all_districts = edu_hn['District Name'].unique()
         all_scores = []
         for d in all_districts:
-            ela = edu_hn.loc[edu['District Name'] == d]['ELAPerformanceIndex'].mean(axis=0)
-            math = edu_hn.loc[edu['District Name'] == d]['MathPerformanceIndex'].mean(axis=0)
-            science = edu_hn.loc[edu['District Name'] == d]['SciencePerformanceIndex'].mean(axis=0)
-            hn_score = np.nanmean([ela, math, science])
+            subject_scores = []
+            ela = edu_hn.loc[(edu_hn['District Name'] == d) & (edu_hn['Subgroup'] == 'High Needs')]['ELAPerformanceIndex'].to_numpy().item()
+            if not np.isnan(ela):
+                subject_scores.append(ela)
+            math = edu_hn.loc[(edu_hn['District Name'] == d) & (edu_hn['Subgroup'] == 'High Needs')]['MathPerformanceIndex'].to_numpy().item()
+            if not np.isnan(math):
+                subject_scores.append(math)
+            science = edu_hn.loc[(edu_hn['District Name'] == d) & (edu_hn['Subgroup'] == 'High Needs')]['SciencePerformanceIndex'].to_numpy().item()
+            if not np.isnan(science):
+                subject_scores.append(science)
+            if len(subject_scores) == 0:
+                pass
+            else:
+                hn_score = sum(subject_scores) / len(subject_scores)
             all_scores.append(hn_score)
         df_score = pd.DataFrame(all_scores, columns = ['District Scores'])
         df_score['Ranked Scores'] = df_score['District Scores'].rank(pct=True)
          
          #specific district nums
-        district_ela = edu_hn.loc[edu['District Name'] == district]['ELAPerformanceIndex'].mean(axis=0)
-        district_math = edu_hn.loc[edu['District Name'] == district]['MathPerformanceIndex'].mean(axis=0)
-        district_science = edu_hn.loc[edu['District Name'] == district]['SciencePerformanceIndex'].mean(axis=0)
+        subject_scores = []
+        district_ela = edu_hn.loc[(edu_hn['District Name'] == district) & (edu_hn['Subgroup'] == 'High Needs')]['ELAPerformanceIndex'].to_numpy().item()
+        #print(district_ela)
+        if not np.isnan(district_ela):
+            subject_scores.append(district_ela)
+        district_math = edu_hn.loc[(edu_hn['District Name'] == district) & (edu_hn['Subgroup'] == 'High Needs')]['MathPerformanceIndex'].to_numpy().item()
+        if not np.isnan(district_math):
+            subject_scores.append(district_math)
+        district_science = edu_hn.loc[(edu_hn['District Name'] == district) & (edu_hn['Subgroup'] == 'High Needs')]['SciencePerformanceIndex'].to_numpy().item()
+        if not np.isnan(district_science):
+            subject_scores.append(district_science)
         district_score = np.nanmean([district_ela, district_math, district_science])
+        if len(subject_scores) == 0:
+            district_score = 'N/A'
+        else:
+            district_score = sum(subject_scores) / len(subject_scores)
         base.at['School Performance - Econ. Disadvantaged', ('All Tracts', 'PERC')] = (df_score.loc[df_score['District Scores'] == district_score]['Ranked Scores'].to_numpy() * 100).item()
         
         
@@ -304,12 +321,11 @@ def divide_moe(calc, num, den, frac, base, col):
     MOE_den = base.loc[den, (col, 'MOE')]
     R = base.loc[frac, (col, 'EST')] / 100
     X_den = base.loc[den, (col, 'EST')]
-    MOE_calc = ((MOE_num**2 - (R**2).to_numpy() * MOE_den**2)**(1/2)).to_numpy() / X_den.to_numpy() * 100
-    # if isinstance(MOE_calc, (int, float)):
-    #     base.loc[calc, (col, 'MOE')] = MOE_calc
-    # else: 
-    #     MOE_calc = ((MOE_num**2 + (R**2).to_numpy() * MOE_den**2)**(1/2)).to_numpy() / X_den.to_numpy() * 100
-    #     base.loc[calc, (col, 'MOE')] = MOE_calc
+    under_sqrt = (MOE_num**2 - (R**2).to_numpy() * MOE_den**2).to_numpy()
+    if all(i >= 0 for i in under_sqrt):
+        MOE_calc = ((MOE_num**2 - (R**2).to_numpy() * MOE_den**2)**(1/2)).to_numpy() / X_den.to_numpy() * 100
+    else:
+        MOE_calc = ((MOE_num**2 + (R**2).to_numpy() * MOE_den**2)**(1/2)).to_numpy() / X_den.to_numpy() * 100
     
     base.loc[calc, (col, 'MOE')] = MOE_calc
     base.loc[calc, 'Source'] = base.loc[num, 'Source'].to_numpy()
@@ -319,12 +335,10 @@ def divide_moe_all_only(calc, num, den, frac, base):
     MOE_den = base.loc[den, ('All Tracts', 'MOE')]
     R = base.loc[frac, ('All Tracts', 'EST')] / 100
     X_den = base.loc[den, ('All Tracts', 'EST')]
-    MOE_calc = ((MOE_num**2 - (R**2) * MOE_den**2)**(1/2)) / X_den * 100
-    # if isinstance(MOE_calc, (int, float)):
-    #     base.loc[calc, ('All Tracts', 'MOE')] = MOE_calc
-    # else: 
-    #     MOE_calc = ((MOE_num**2 + (R**2) * MOE_den**2)**(1/2)) / X_den * 100
-    #     base.loc[calc, ('All Tracts', 'MOE')] = MOE_calc
+    if all(i >= 0 for i in under_sqrt):
+        MOE_calc = ((MOE_num**2 - (R**2) * MOE_den**2)**(1/2)) / X_den* 100
+    else:
+        MOE_calc = ((MOE_num**2 + (R**2) * MOE_den**2)**(1/2)) / X_den * 100
     base.loc[calc, ('All Tracts', 'MOE')] = MOE_calc
     base.loc[calc, 'Source'] = base.loc[num, 'Source'].to_numpy()
 

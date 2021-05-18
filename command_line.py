@@ -82,8 +82,8 @@ from sodapy import Socrata
     
 
  
-edu_hn = pd.read_excel('ct_accountability.xlsx')
-print(edu_hn)
+edu_hn = pd.read_excel('ct_subgroup.xlsx')
+print(edu_hn['District Name'])
 # import os
 # print(os.getcwd())
 
