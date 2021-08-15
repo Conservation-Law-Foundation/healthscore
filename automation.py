@@ -12,7 +12,8 @@ from sodapy import Socrata
 import statistics
 
 # # PANDAS SETTINGS - DO NOT EDIT
-#pd.set_option('display.max_columns', 10)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
 # pd.set_option('expand_frame_repr', False)
 # pd.options.display.float_format = '{:.2f}'.format #set number of decimal points
 pd.set_option('mode.chained_assignment',None)
@@ -34,6 +35,15 @@ block = str(input('Block: '))
 district = str(input("District: " ))
 community = str(input('Community: '))
 project = str(input("Project Name: " ))
+
+# state = str(25)
+# county = str(0) + str(25)
+# primary = '070800'
+# tracts = ['070800', '010403', '010404', '010405', '010500', '070600', '070700', '070900', '080500', '010600', '070500']
+# block = str(1)
+# project = 'Northampton St'
+# district = 'Boston'
+# community = 'CoN'
 
 #TRACT & STATE OBJECTS
 State = Place('', state)
@@ -181,7 +191,7 @@ for i in state_data.index:
 #SCHOOL DATA
 add_schools(state, district, base)
 
- 
+
 ##############
 #CALCULATIONS#
 ##############
@@ -201,7 +211,11 @@ for index, row in base['All Tracts'].iterrows():
 rollup_num_calc('Life Expectancy', 'Total Population', base, tracts, state, col)
 sums = 0
 for t in tracts:
-    sums += base.loc['Life Expectancy', (t, 'SE')] **2
+    se = base.loc['Life Expectancy', (t, 'SE')]
+    if np.isnan(se):
+        continue
+    else:
+        sums += se **2
 base.loc['Life Expectancy', ('All Tracts', 'SE')] = sums**(1/2)
 base.loc['Life Expectancy', ('All Tracts', 'MOE')] = base.loc['Life Expectancy', ('All Tracts', 'SE')] * 1.645
 
@@ -279,6 +293,7 @@ divide_rows('Unemployment Rate (%)', 'Total Unemployed', 'In Labor Force', 'Unem
 divide_rows('Limited English-speaking Households (%)', 'Limited English-speaking', 'Total with Language Data', 'Limited English-speaking Households (%)', base, col)
 divide_rows('Population of Low-Income Children <5 (%)', 'Low-Income <5', 'Total <5', 'Population of Low-Income Children <5 (%)', base, col)
 divide_rows('Population of Low-Income Seniors >65 (%)', 'Low-Income >65', 'Total >65', 'Population of Low-Income Seniors >65 (%)', base, col)
+
 
 # # #Educational Attainment
 add_est('Total Educated', ['> 25 with Associates', '> 25 with Bachelors or higher'], base, col)

@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 #datasets
-latch = pd.read_csv('latch_2017-b.csv')
-epa = pd.read_csv('MA_tracts_d4c.csv')
+latch = pd.read_csv('latch.csv')
+mbuepa = pd.read_csv('RI_d4c.csv')
 epa = epa.loc[epa['D4c'] != -99999.00] #remove negatives
 
 #clean epa data (remove last digit of geoid)

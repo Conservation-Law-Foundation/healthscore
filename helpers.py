@@ -56,8 +56,17 @@ def add_acs_data_one(call,db,obj,base_df):
     #add data to dataframe
     for m in db.metrics:
         try:
-            base_df.loc[m.name, (obj.code, 'EST')] = float(df[m.code_E].iloc[0])
-            base_df.loc[m.name, (obj.code, 'MOE')] = float(df[m.code_M].iloc[0])
+            est = float(df[m.code_E].iloc[0])
+            moe = float(df[m.code_M].iloc[0])
+            if est < 0:
+                base_df.loc[m.name, (obj.code, 'EST')] = np.nan
+                base_df.loc[m.name, (obj.code, 'MOE')] = np.nan
+            elif moe < 0:
+                base_df.loc[m.name, (obj.code, 'EST')] = est
+                base_df.loc[m.name, (obj.code, 'MOE')] = np.nan              
+            else:
+                base_df.loc[m.name, (obj.code, 'EST')] = float(df[m.code_E].iloc[0])
+                base_df.loc[m.name, (obj.code, 'MOE')] = float(df[m.code_M].iloc[0])
             base_df.loc[m.name, 'Source'] = 'ACS'
         except KeyError:
             continue
@@ -77,9 +86,19 @@ def add_acs_data_all(db,plcs,base_df):
 def add_rwjf_data(plcs,db,base_df):
     for p in plcs:
         for m in db.metrics:
-            base_df.loc[m, (p.code, 'EST')] = db.data.loc[db.data['Tract ID'] == float(p.full_code), 'e(0)'].iloc[0]
-            base_df.loc[m, (p.code, 'SE')] = db.data.loc[db.data['Tract ID'] == float(p.full_code), 'se(e(0))'].iloc[0] #standard error, not margin of error
-            base_df.loc[m, 'Source'] = 'RWJF'
+            matches = db.data.loc[db.data['Tract ID'] == float(p.full_code)]
+            if matches.empty:
+                base_df.loc[m, (p.code, 'EST')] = np.nan
+                base_df.loc[m, (p.code, 'SE')] = np.nan
+            else:
+                row = matches.iloc[0]  # No two rows have the same Tract ID so don't bother checking for multiple
+                base_df.loc[m, (p.code, 'EST')] = row['e(0)']
+                base_df.loc[m, (p.code, 'SE')] = row['se(e(0))'] #standard error, not margin of error
+                base_df.loc[m, 'Source'] = 'RWJF'
+           
+            # base_df.loc[m, (p.code, 'EST')] = db.data.loc[db.data['Tract ID'] == float(p.full_code), 'e(0)'].iloc[0]
+            # base_df.loc[m, (p.code, 'SE')] = db.data.loc[db.data['Tract ID'] == float(p.full_code), 'se(e(0))'].iloc[0] #standard error, not margin of error
+            # base_df.loc[m, 'Source'] = 'RWJF'
 
 
 #CDC PLACES
@@ -301,7 +320,11 @@ def subtract_est(calc, first, second, base, col):
     base.loc[calc, 'Source'] = base.loc[first, 'Source'].to_numpy()
     
 def divide_est(calc, num, den, base, col):
-    base.loc[calc, (col, 'EST')] = base.loc[num, (col, 'EST')] / base.loc[den, (col, 'EST')] * 100
+    for i in range(0, len(col)):
+        try:
+            base.loc[calc, (col[i], 'EST')] = base.loc[num, (col[i], 'EST')] / base.loc[den, (col[i], 'EST')] * 100
+        except ZeroDivisionError:
+            base.loc[calc, (col[i], 'EST')] = np.nan
     base.loc[calc, 'Source'] = base.loc[num, 'Source'].to_numpy()
 
 def add_moe(calc, metric_list, base, col):    
@@ -322,7 +345,9 @@ def divide_moe(calc, num, den, frac, base, col):
     R = base.loc[frac, (col, 'EST')] / 100
     X_den = base.loc[den, (col, 'EST')]
     under_sqrt = (MOE_num**2 - (R**2).to_numpy() * MOE_den**2).to_numpy()
-    if all(i >= 0 for i in under_sqrt):
+    if any(i <= 0 for i in X_den.to_numpy()):
+        MOE_calc = np.nan
+    elif all(i >= 0 for i in under_sqrt):
         MOE_calc = ((MOE_num**2 - (R**2).to_numpy() * MOE_den**2)**(1/2)).to_numpy() / X_den.to_numpy() * 100
     else:
         MOE_calc = ((MOE_num**2 + (R**2).to_numpy() * MOE_den**2)**(1/2)).to_numpy() / X_den.to_numpy() * 100
@@ -335,7 +360,8 @@ def divide_moe_all_only(calc, num, den, frac, base):
     MOE_den = base.loc[den, ('All Tracts', 'MOE')]
     R = base.loc[frac, ('All Tracts', 'EST')] / 100
     X_den = base.loc[den, ('All Tracts', 'EST')]
-    if all(i >= 0 for i in under_sqrt):
+    under_sqrt = (MOE_num**2 - (R**2) * MOE_den**2)
+    if under_sqrt >= 0:
         MOE_calc = ((MOE_num**2 - (R**2) * MOE_den**2)**(1/2)) / X_den* 100
     else:
         MOE_calc = ((MOE_num**2 + (R**2) * MOE_den**2)**(1/2)) / X_den * 100
@@ -404,12 +430,17 @@ def rollup_percent_calc(metric, total_pop, base, tracts, state, col):
 def rollup_num_calc(metric, total_pop, base, tracts, state, col):
     temp = 'Total ' + metric
     sums = 0
+    pop_not_nan = 0
     for t in tracts:
-        base.loc[temp, (t, 'EST')] = (base.loc[metric, (t, 'EST')]) * base.loc[total_pop, (t, 'EST')]
-        base.loc[temp, (t, 'MOE')] = (base.loc[metric, (t, 'MOE')]) * base.loc[total_pop, (t, 'MOE')]
-        sums += base.loc[temp, (t, 'EST')]
+        if np.isnan(base.loc[metric, (t, 'EST')]):
+            continue
+        else:
+            base.loc[temp, (t, 'EST')] = (base.loc[metric, (t, 'EST')]) * base.loc[total_pop, (t, 'EST')]
+            base.loc[temp, (t, 'MOE')] = (base.loc[metric, (t, 'MOE')]) * base.loc[total_pop, (t, 'MOE')]
+            sums += base.loc[temp, (t, 'EST')]
+            pop_not_nan += base.loc[total_pop, (t, 'EST')]
     base.loc[temp, ('All Tracts', 'EST')] = sums
-    base.loc[metric, ('All Tracts', 'EST')] = sums / base.loc[total_pop, ('All Tracts', 'EST')]
+    base.loc[metric, ('All Tracts', 'EST')] = sums / pop_not_nan
     #handle state
     base.loc[temp, (state, 'EST')] = (base.loc[metric, (state, 'EST')]) * base.loc[total_pop, (state, 'EST')]
     base.loc[temp, (state, 'MOE')] = (base.loc[metric, (state, 'MOE')]) * base.loc[total_pop, (state, 'MOE')]
@@ -421,5 +452,5 @@ def rollup_num_calc(metric, total_pop, base, tracts, state, col):
 
 def divide_rows(calc, num, den, frac, base, col):
     divide_est(calc, num, den, base, col)  
-    divide_moe(calc, num, den, frac, base, col)                                       
+    divide_moe_all_only(calc, num, den, frac, base)                                       
                                            

@@ -69,3 +69,12 @@ from databases import *
 # project = 'CT trial'
 # district = 'New Haven School District'
 # community = "CoO"
+
+# state = str(25)
+# county = str(0) + str(25)
+# primary = '070800'
+# tracts = ['070800', '010403', '010404', '010405', '010500', '070600', '070700', '070900', '080500', '010600', '070500']
+# block = str(1)
+# project = 'Northampton St'
+# district = 'Boston'
+# community = 'CoN'
