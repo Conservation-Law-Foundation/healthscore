@@ -36,6 +36,16 @@ district = str(input("District: " ))
 community = str(input('Community: '))
 project = str(input("Project Name: " ))
 
+
+# state = str(25)
+# county = str(0) + str(21)
+# primary = '421100'
+# tracts = ['421100','420302','421200']
+# project = 'Holbrook sanity check3'
+# block = str(4)
+# district = 'Holbrook'
+# community = 'CoN'
+
 # state = str(25)
 # county = str(0) + str(25)
 # primary = '070800'

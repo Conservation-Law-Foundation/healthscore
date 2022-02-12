@@ -107,8 +107,11 @@ def add_places_data(db, plcs, client, base_df):
     for m in db.metrics:
         base_df.loc[m.name, 'Source'] = 'PLACES'
         for p in plcs:
-            results = client.get("cwsq-ngmh", year="2018", locationid=p.full_code, measureid=m.code, limit=2000)
+            #print(p.full_code)
+            #print(m.code)
+            results = client.get("cwsq-ngmh", year="2019", locationid=p.full_code, measureid=m.code, limit=2000)
             df = pd.DataFrame.from_records(results)
+            #print(df)
             est = float(df['data_value'])
             pop = float(df['totalpopulation'])
             me = (abs((est - float(df['low_confidence_limit']))) + abs((est - float(df['high_confidence_limit'])))) / 2
